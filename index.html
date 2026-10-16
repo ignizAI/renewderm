@@ -90,7 +90,15 @@ h2 em{color:var(--wine-500)}
 .hero-lines .spin{transform-origin:center;transform-box:fill-box;animation:spin 80s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;padding:140px 0 110px}
+/* full-bleed water ripple layer */
+.ripple{position:absolute;inset:0;width:100%;height:100%;z-index:-1;display:block;pointer-events:none}
+.ripple-hint{position:absolute;right:32px;bottom:34px;font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(226,181,174,.6);display:flex;align-items:center;gap:10px}
+.ripple-hint::before{content:"";width:8px;height:8px;border-radius:50%;border:1px solid #e2b5ae;animation:ping 2.4s var(--ease) infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(226,181,174,.6)}100%{box-shadow:0 0 0 14px rgba(226,181,174,0)}}
+.hero-grid{display:grid;grid-template-columns:1fr;align-items:center;padding:150px 0 120px;pointer-events:none}
+.hero-grid a,.hero-grid button{pointer-events:auto}
+.hero-badges{display:flex;flex-wrap:wrap;gap:12px;margin-top:44px}
+.hero-badges .chip{position:static;animation:none}
 .hero .eyebrow{color:var(--gold-300);display:inline-flex;align-items:center;gap:.8rem}
 .hero .eyebrow::before{content:"";width:34px;height:1px;background:var(--gold-400)}
 .hero h1{font-size:clamp(3rem,7.4vw,6.4rem);margin:22px 0 26px;font-weight:400}
@@ -283,9 +291,8 @@ footer{background:var(--wine-950);color:rgba(251,247,243,.62);padding:70px 0 34p
 @media (max-width:1000px){
   .nav-links,.nav .btn{display:none}
   .burger{display:block}
-  .hero-grid{grid-template-columns:1fr;padding:130px 0 120px;gap:56px}
-  .hero-visual{width:min(78%,360px)}
-  .chip-1{left:-12%}.chip-2{right:-10%}
+  .hero-grid{padding:130px 0 110px}
+  .ripple-hint{display:none}
   .concerns,.docs{grid-template-columns:1fr 1fr}
   .about-grid,.faq-grid,.book-card{grid-template-columns:1fr;gap:48px}
   .about-visual{max-width:420px;margin-inline:auto;width:100%}
@@ -296,7 +303,6 @@ footer{background:var(--wine-950);color:rgba(251,247,243,.62);padding:70px 0 34p
   .concerns,.docs,.steps{grid-template-columns:1fr}
   .row2{grid-template-columns:1fr}
   .chip{font-size:.74rem;padding:10px 12px}
-  .chip-1{left:-6%;top:6%}.chip-2{right:-6%}
   .foot{grid-template-columns:1fr}
   .scroll-cue{display:none}
 }
@@ -339,6 +345,7 @@ footer{background:var(--wine-950);color:rgba(251,247,243,.62);padding:70px 0 34p
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
   <div class="orb orb-3"></div>
+  <canvas class="ripple" id="ripple" aria-hidden="true"></canvas>
   <div class="grain"></div>
   <svg class="hero-lines" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g class="spin"><circle cx="1080" cy="430" r="380"/><circle cx="1080" cy="430" r="300" stroke-dasharray="2 10"/></g>
@@ -359,15 +366,14 @@ footer{background:var(--wine-950);color:rgba(251,247,243,.62);padding:70px 0 34p
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         <a href="#treatments" class="btn btn-ghost">Explore treatments</a>
       </div>
-    </div>
-
-    <div class="hero-visual fade-up d3" aria-hidden="true">
-      <div class="arch"><div class="arch-inner"><div class="droplet"></div></div><div class="arch-ring"></div></div>
-      <div class="chip chip-1"><i><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8 5.8 21.3l2.4-7.4L2 9.4h7.6z"/></svg></i><div><b>Board-certified</b><span>Dermatologists</span></div></div>
-      <div class="chip chip-2"><i><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></i><div><b>Personalised plans</b><span>For every skin type</span></div></div>
+      <div class="hero-badges fade-up d3">
+        <div class="chip"><i><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8 5.8 21.3l2.4-7.4L2 9.4h7.6z"/></svg></i><div><b>Board-certified</b><span>Dermatologists</span></div></div>
+        <div class="chip"><i><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></i><div><b>Personalised plans</b><span>For every skin type</span></div></div>
+      </div>
     </div>
   </div>
   <div class="scroll-cue">Scroll</div>
+  <div class="ripple-hint">Move to ripple</div>
 </section>
 
 <!-- MARQUEE -->
@@ -558,6 +564,79 @@ footer{background:var(--wine-950);color:rgba(251,247,243,.62);padding:70px 0 34p
       orbs.forEach((o,i)=>{o.style.translate=(x*(i+1)*18)+'px '+(y*(i+1)*18)+'px'});
     },{passive:true});
   }
+
+  // full-bleed water ripple (#e2b5ae) on hover
+  (function(){
+    const hero=document.getElementById('top'),cv=document.getElementById('ripple');
+    if(!cv||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const ctx=cv.getContext('2d');
+    const CELL=4,R=226,G=181,B=174;            // ripple colour #e2b5ae
+    let w,h,a,b,img,off,octx,running=true;
+    function size(){
+      const rect=hero.getBoundingClientRect();
+      cv.width=rect.width;cv.height=rect.height;
+      w=Math.ceil(rect.width/CELL)+2;h=Math.ceil(rect.height/CELL)+2;
+      a=new Float32Array(w*h);b=new Float32Array(w*h);
+      off=document.createElement('canvas');off.width=w;off.height=h;
+      octx=off.getContext('2d');img=octx.createImageData(w,h);
+      ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+    }
+    function drop(x,y,r,s){
+      const cx=(x/CELL|0)+1,cy=(y/CELL|0)+1;
+      for(let j=-r;j<=r;j++)for(let i=-r;i<=r;i++){
+        const px=cx+i,py=cy+j;
+        if(px<1||py<1||px>=w-1||py>=h-1)continue;
+        const d=Math.sqrt(i*i+j*j);if(d>r)continue;
+        a[py*w+px]+=s*(1-d/r);
+      }
+    }
+    function step(){
+      for(let y=1;y<h-1;y++){
+        for(let x=1;x<w-1;x++){
+          const i=y*w+x;
+          let v=(a[i-1]+a[i+1]+a[i-w]+a[i+w])*0.5-b[i];
+          b[i]=v*0.968;                              // damping
+        }
+      }
+      const t=a;a=b;b=t;
+    }
+    function render(){
+      const d=img.data;
+      for(let y=1;y<h-1;y++){
+        for(let x=1;x<w-1;x++){
+          const i=y*w+x,dx=a[i-1]-a[i+1],dy=a[i-w]-a[i+w];
+          const s=dx*0.6+dy*0.9;
+          const al=Math.min(1,Math.pow(Math.abs(s)/110,1.4));
+          const lift=s>0?Math.min(40,s*0.4):0;           // brighter crests
+          const p=i*4;
+          d[p]=Math.min(255,R+lift);d[p+1]=Math.min(255,G+lift);d[p+2]=Math.min(255,B+lift);
+          d[p+3]=al*150;
+        }
+      }
+      octx.putImageData(img,0,0);
+      ctx.clearRect(0,0,cv.width,cv.height);
+      ctx.drawImage(off,-CELL,-CELL,w*CELL,h*CELL);
+    }
+    let last=null;
+    function move(x,y){
+      if(last){
+        const dx=x-last.x,dy=y-last.y,dist=Math.hypot(dx,dy),n=Math.max(1,dist/10|0);
+        for(let k=1;k<=n;k++)drop(last.x+dx*k/n,last.y+dy*k/n,2,Math.min(220,80+dist*1.8)/n);
+      }else drop(x,y,2,110);
+      last={x,y};
+    }
+    hero.addEventListener('pointermove',e=>{const r=hero.getBoundingClientRect();move(e.clientX-r.left,e.clientY-r.top)},{passive:true});
+    hero.addEventListener('pointerleave',()=>last=null);
+    hero.addEventListener('pointerdown',e=>{const r=hero.getBoundingClientRect();drop(e.clientX-r.left,e.clientY-r.top,6,520)});
+    // gentle ambient drops so the surface feels alive
+    setInterval(()=>{if(running)drop(Math.random()*cv.width,Math.random()*cv.height,4,140)},2600);
+    // pause when hero is off-screen
+    new IntersectionObserver(es=>{running=es[0].isIntersecting}).observe(hero);
+    function loop(){if(running){step();render()}requestAnimationFrame(loop)}
+    size();addEventListener('resize',()=>{clearTimeout(size.t);size.t=setTimeout(size,150)});
+    setTimeout(()=>drop(cv.width*.7,cv.height*.45,7,700),900);  // opening ripple
+    loop();
+  })();
 
   // FAQ accordion
   document.querySelectorAll('.faq-item button').forEach(b=>b.addEventListener('click',()=>{
