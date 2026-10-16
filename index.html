@@ -214,6 +214,22 @@ section{padding:clamp(80px,11vw,140px) 0}
 .pillar p{color:var(--muted);font-size:.93rem}
 .about p.intro{color:var(--muted);margin-top:20px;max-width:520px}
 
+
+/* Renewderm approach: scroll-triggered entrance (1.5s) */
+#about .about-visual .blob{opacity:0;transform:scale(.97);transition:opacity 1.5s var(--ease),transform 1.5s var(--ease)}
+#about .about-visual .quote{opacity:0;transform:translateX(-140px);transition:opacity 1.1s var(--ease) .25s,transform 1.25s var(--ease) .25s}
+#about .about-copy>.eyebrow,#about .about-copy>h2,#about .about-copy>.intro{opacity:0;transform:translateY(18px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+#about .about-copy>h2{transition-delay:.08s}#about .about-copy>.intro{transition-delay:.16s}
+#about .pillar{opacity:0;transform:translateX(90px);clip-path:inset(0 0 0 100%);
+  transition:opacity 1s var(--ease),transform 1s var(--ease),clip-path 1s var(--ease)}
+#about .pillar:nth-child(2){transition-delay:.25s}
+#about .pillar:nth-child(3){transition-delay:.5s}
+#about.ab-in .about-visual .blob{opacity:1;transform:none}
+#about.ab-in .about-visual .quote{opacity:1;transform:none}
+#about.ab-in .about-copy>*{opacity:1;transform:none}
+#about.ab-in .pillar{opacity:1;transform:none;clip-path:inset(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){#about .about-visual .blob,#about .about-visual .quote,#about .about-copy>*,#about .pillar{opacity:1!important;transform:none!important;clip-path:none!important}}
+
 /* doctors */
 .docs{display:grid;grid-template-columns:repeat(2,1fr);gap:26px}
 .doc{border-radius:var(--radius);overflow:hidden;background:#fff;border:1px solid var(--line);transition:transform .6s var(--ease),box-shadow .6s var(--ease)}
@@ -481,11 +497,11 @@ footer{background:var(--wine-950);color:rgba(251,247,243,.62);padding:70px 0 34p
 <!-- ABOUT -->
 <section class="about" id="about">
   <div class="wrap about-grid">
-    <div class="about-visual reveal">
+    <div class="about-visual">
       <div class="blob"><img src="https://images.unsplash.com/photo-1713085085470-fba013d67e65?w=1100&q=80&auto=format&fit=crop" alt="Dermatologist performing a facial skin treatment with a clinical device" loading="lazy"></div>
       <div class="quote">“Good skin care starts with the right diagnosis.”</div>
     </div>
-    <div class="reveal">
+    <div class="about-copy">
       <span class="eyebrow">The Renewderm approach</span>
       <h2 style="margin-top:16px">Medicine first. <em>Then</em> aesthetics.</h2>
       <p class="intro">Renewderm is a skin, hair, laser and aesthetics centre in Mumbai. Every plan is built by a dermatologist around your skin, your history and what you want to achieve.</p>
@@ -782,6 +798,16 @@ footer{background:var(--wine-950);color:rgba(251,247,243,.62);padding:70px 0 34p
     new IntersectionObserver(es=>{running=es[0].isIntersecting}).observe(hero);
     size();addEventListener('resize',()=>{clearTimeout(size.t);size.t=setTimeout(size,150)});
     requestAnimationFrame(frame);
+  })();
+
+
+  // Renewderm approach entrance — plays each time the section scrolls into view
+  (function(){
+    const sec=document.getElementById('about');if(!sec)return;
+    new IntersectionObserver(es=>es.forEach(e=>{
+      if(e.isIntersecting&&e.intersectionRatio>=.25)sec.classList.add('ab-in');
+      else if(!e.isIntersecting)sec.classList.remove('ab-in');
+    }),{threshold:[0,.25]}).observe(sec);
   })();
 
   // FAQ accordion
