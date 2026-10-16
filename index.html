@@ -164,29 +164,6 @@ h2 em{color:var(--wine-500)}
 .nav:not(.scrolled):not(.menu-open) .btn-gold:hover{background:#43222a}
 .nav:not(.scrolled):not(.menu-open) .burger span{background:var(--wine-950)}
 
-
-/* hero portrait cutout (right side) */
-.hero-portrait{margin:0;position:absolute;right:max(3vw,calc((100vw - 1200px)/2 - 20px));bottom:0;height:min(84svh,760px);aspect-ratio:609/859;z-index:0;pointer-events:none;
-  opacity:0;transform:translateY(30px);animation:portraitIn 1.4s var(--ease) .5s forwards}
-.hero-portrait::before{content:"";position:absolute;left:8%;right:-4%;top:6%;bottom:-2%;border-radius:999px 999px 0 0;
-  background:radial-gradient(120% 70% at 50% 20%,rgba(255,246,242,.75),rgba(239,211,205,.35) 55%,rgba(226,181,174,0) 80%);z-index:-1}
-.hero-portrait img{width:100%;height:100%;object-fit:contain;object-position:bottom;display:block;
-  -webkit-mask-image:linear-gradient(to bottom,#000 86%,transparent 100%);mask-image:linear-gradient(to bottom,#000 86%,transparent 100%)}
-.hero-portrait picture{display:block;height:100%;width:100%;filter:drop-shadow(0 30px 40px rgba(42,20,24,.22))}
-.hero-portrait .tag{position:absolute;left:-14%;bottom:18%;pointer-events:auto;background:rgba(255,250,246,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  border:1px solid rgba(255,255,255,.7);border-radius:16px;padding:12px 16px;box-shadow:0 18px 36px -20px rgba(42,20,24,.45);color:var(--wine-950)}
-.hero-portrait .tag b{display:block;font-family:var(--serif);font-size:1.15rem;font-weight:500;line-height:1.1}
-.hero-portrait .tag span{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--wine-500);font-weight:600}
-@keyframes portraitIn{to{opacity:1;transform:none}}
-.hero-grid>div{position:relative;z-index:1;max-width:min(640px,52vw)}
-@media (max-width:1000px){
-  .hero{flex-direction:column;align-items:stretch;justify-content:flex-start}
-  .hero-grid{padding-bottom:0!important}
-  .hero-grid>div{max-width:none}
-  .hero-portrait{position:relative;right:auto;align-self:center;height:min(58svh,460px);margin-top:4px}
-  .hero-portrait .tag{left:-8%;bottom:14%}
-}
-
 /* ---------- MARQUEE ---------- */
 .marquee{background:var(--wine-900);color:var(--rose-200);overflow:hidden;padding:20px 0;border-top:1px solid rgba(201,164,106,.18)}
 .marquee-track{display:flex;gap:56px;width:max-content;animation:marquee 38s linear infinite}
@@ -455,10 +432,6 @@ footer{background:var(--wine-950);color:rgba(251,247,243,.62);padding:70px 0 34p
       </div>
     </div>
   </div>
-  <figure class="hero-portrait">
-    <picture><source srcset="images/dr-shehnaz-hero.webp" type="image/webp"><img src="images/dr-shehnaz-hero.png" alt="Dr. Shehnaz Arsiwala, dermatologist at Renewderm"></picture>
-    <figcaption class="tag"><b>Dr. Shehnaz Arsiwala</b><span>Dermatologist</span></figcaption>
-  </figure>
   <div class="scroll-cue">Scroll</div>
 </section>
 
