@@ -182,11 +182,13 @@ section{padding:clamp(80px,11vw,140px) 0}
 .about p.intro{color:var(--muted);margin-top:20px;max-width:520px}
 
 /* doctors */
-.docs{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.docs{display:grid;grid-template-columns:repeat(2,1fr);gap:26px}
 .doc{border-radius:var(--radius);overflow:hidden;background:#fff;border:1px solid var(--line);transition:transform .6s var(--ease),box-shadow .6s var(--ease)}
 .doc:hover{transform:translateY(-6px);box-shadow:0 30px 60px -32px rgba(28,13,16,.4)}
-.doc-img{aspect-ratio:4/4.2;position:relative;display:grid;place-items:center;overflow:hidden;background:linear-gradient(170deg,var(--rose-200),var(--rose-300) 45%,var(--wine-500))}
-.doc-img::after{content:"";position:absolute;inset:0;background:radial-gradient(60% 50% at 50% 30%,rgba(255,255,255,.35),transparent 70%)}
+.doc-img{aspect-ratio:6/5;position:relative;display:grid;place-items:center;overflow:hidden;background:linear-gradient(170deg,var(--rose-200),var(--rose-300) 45%,var(--wine-500))}
+.doc-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%;transition:transform 1.1s var(--ease)}
+.doc:hover .doc-img img{transform:scale(1.05)}
+.doc-img::after{content:"";position:absolute;inset:auto 0 0 0;height:35%;background:linear-gradient(transparent,rgba(28,13,16,.28))}
 .doc-img .mono{font-family:var(--serif);font-size:5rem;font-style:italic;color:rgba(251,247,243,.9);transition:transform .8s var(--ease)}
 .doc:hover .mono{transform:scale(1.08)}
 .doc-body{padding:24px 26px 28px}
@@ -293,7 +295,7 @@ footer{background:var(--wine-950);color:rgba(251,247,243,.62);padding:70px 0 34p
   .burger{display:block}
   .hero-grid{padding:130px 0 110px}
   .ripple-hint{display:none}
-  .concerns,.docs{grid-template-columns:1fr 1fr}
+  .concerns{grid-template-columns:1fr 1fr}
   .about-grid,.faq-grid,.book-card{grid-template-columns:1fr;gap:48px}
   .about-visual{max-width:420px;margin-inline:auto;width:100%}
   .steps{grid-template-columns:1fr 1fr}
@@ -427,12 +429,11 @@ footer{background:var(--wine-950);color:rgba(251,247,243,.62);padding:70px 0 34p
   <div class="wrap">
     <div class="sec-head reveal">
       <div><span class="eyebrow">Our dermatologists</span><h2>Meet the <em>doctors</em></h2></div>
-      <p>A team of board-certified dermatologists covering medical, laser and aesthetic dermatology.</p>
+      <p>Board-certified dermatologists covering medical, laser and aesthetic dermatology.</p>
     </div>
     <div class="docs stagger">
-      <article class="doc"><div class="doc-img"><span class="mono">SA</span></div><div class="doc-body"><h3>Dr. Shehnaz Arsiwala</h3><span>DERMATOLOGIST</span><p>Skin, hair and aesthetic dermatology.</p></div></article>
-      <article class="doc"><div class="doc-img"><span class="mono">NA</span></div><div class="doc-body"><h3>Dr. Nazneen Arsiwala</h3><span>DERMATOLOGIST</span><p>Medical and clinical dermatology.</p></div></article>
-      <article class="doc"><div class="doc-img"><span class="mono">P</span></div><div class="doc-body"><h3>Dr. Poojita</h3><span>DERMATOLOGIST</span><p>Skin and laser treatments.</p></div></article>
+      <article class="doc"><div class="doc-img"><img src="images/dr-shehnaz-arsiwala.jpg" alt="Dr. Shehnaz Arsiwala" loading="lazy"></div><div class="doc-body"><h3>Dr. Shehnaz Arsiwala</h3><span>DERMATOLOGIST</span><p>Skin, hair and aesthetic dermatology.</p></div></article>
+      <article class="doc"><div class="doc-img"><img src="images/dr-nazneen-arsiwala.jpg" alt="Dr. Nazneen Arsiwala" loading="lazy"></div><div class="doc-body"><h3>Dr. Nazneen Arsiwala</h3><span>CONSULTANT DERMATOLOGIST</span><p>Medical and clinical dermatology.</p></div></article>
     </div>
   </div>
 </section>
