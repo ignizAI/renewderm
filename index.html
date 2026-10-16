@@ -76,9 +76,9 @@ h2 em{color:var(--wine-500)}
 .mobile-menu a{font-family:var(--serif);font-size:2.4rem;color:var(--cream-50)}
 
 /* ---------- HERO (full-bleed) ---------- */
-.hero{position:relative;min-height:100svh;width:100%;background:var(--wine-950);color:var(--cream-50);overflow:hidden;display:flex;align-items:center;isolation:isolate}
+.hero{position:relative;min-height:100svh;width:100%;background:linear-gradient(155deg,#7a3a48 0%,#6a3140 45%,#5a2a36 100%);color:var(--cream-50);overflow:hidden;display:flex;align-items:center;isolation:isolate}
 .orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;z-index:-2;will-change:transform}
-.orb-1{width:min(62vw,760px);aspect-ratio:1;background:radial-gradient(circle,#7a3342 0%,transparent 70%);top:-18%;right:-12%;animation:drift1 22s var(--ease) infinite alternate}
+.orb-1{width:min(62vw,760px);aspect-ratio:1;background:radial-gradient(circle,rgba(226,181,174,.35) 0%,transparent 70%);top:-18%;right:-12%;animation:drift1 22s var(--ease) infinite alternate}
 .orb-2{width:min(48vw,560px);aspect-ratio:1;background:radial-gradient(circle,rgba(201,164,106,.55) 0%,transparent 70%);bottom:-22%;left:-10%;animation:drift2 26s var(--ease) infinite alternate}
 .orb-3{width:min(34vw,420px);aspect-ratio:1;background:radial-gradient(circle,rgba(226,181,174,.5) 0%,transparent 70%);top:30%;left:38%;animation:drift3 30s var(--ease) infinite alternate;opacity:.35}
 @keyframes drift1{to{transform:translate(-8%,10%) scale(1.12)}}
@@ -90,11 +90,8 @@ h2 em{color:var(--wine-500)}
 .hero-lines .spin{transform-origin:center;transform-box:fill-box;animation:spin 80s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* full-bleed water ripple layer */
-.ripple{position:absolute;inset:0;width:100%;height:100%;z-index:-1;display:block;pointer-events:none}
-.ripple-hint{position:absolute;right:32px;bottom:34px;font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(226,181,174,.6);display:flex;align-items:center;gap:10px}
-.ripple-hint::before{content:"";width:8px;height:8px;border-radius:50%;border:1px solid #e2b5ae;animation:ping 2.4s var(--ease) infinite}
-@keyframes ping{0%{box-shadow:0 0 0 0 rgba(226,181,174,.6)}100%{box-shadow:0 0 0 14px rgba(226,181,174,0)}}
+/* full-bleed falling leaves layer */
+.leaves{position:absolute;inset:0;width:100%;height:100%;z-index:-1;display:block;pointer-events:none}
 .hero-grid{display:grid;grid-template-columns:1fr;align-items:center;padding:150px 0 120px;pointer-events:none}
 .hero-grid a,.hero-grid button{pointer-events:auto}
 .hero-badges{display:flex;flex-wrap:wrap;gap:12px;margin-top:44px}
@@ -294,7 +291,6 @@ footer{background:var(--wine-950);color:rgba(251,247,243,.62);padding:70px 0 34p
   .nav-links,.nav .btn{display:none}
   .burger{display:block}
   .hero-grid{padding:130px 0 110px}
-  .ripple-hint{display:none}
   .concerns{grid-template-columns:1fr 1fr}
   .about-grid,.faq-grid,.book-card{grid-template-columns:1fr;gap:48px}
   .about-visual{max-width:420px;margin-inline:auto;width:100%}
@@ -347,7 +343,7 @@ footer{background:var(--wine-950);color:rgba(251,247,243,.62);padding:70px 0 34p
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
   <div class="orb orb-3"></div>
-  <canvas class="ripple" id="ripple" aria-hidden="true"></canvas>
+  <canvas class="leaves" id="leaves" aria-hidden="true"></canvas>
   <div class="grain"></div>
   <svg class="hero-lines" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g class="spin"><circle cx="1080" cy="430" r="380"/><circle cx="1080" cy="430" r="300" stroke-dasharray="2 10"/></g>
@@ -375,7 +371,6 @@ footer{background:var(--wine-950);color:rgba(251,247,243,.62);padding:70px 0 34p
     </div>
   </div>
   <div class="scroll-cue">Scroll</div>
-  <div class="ripple-hint">Move to ripple</div>
 </section>
 
 <!-- MARQUEE -->
@@ -566,77 +561,65 @@ footer{background:var(--wine-950);color:rgba(251,247,243,.62);padding:70px 0 34p
     },{passive:true});
   }
 
-  // full-bleed water ripple (#e2b5ae) on hover
+  // falling autumn leaves in the hero background
   (function(){
-    const hero=document.getElementById('top'),cv=document.getElementById('ripple');
+    const hero=document.getElementById('top'),cv=document.getElementById('leaves');
     if(!cv||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-    const ctx=cv.getContext('2d');
-    const CELL=4,R=226,G=181,B=174;            // ripple colour #e2b5ae
-    let w,h,a,b,img,off,octx,running=true;
+    const ctx=cv.getContext('2d'),dpr=Math.min(2,devicePixelRatio||1);
+    const COLORS=['#e2b5ae','#c9a46a','#d4895c','#b9573f','#efd3cd','#a8433f','#dcc193'];
+    let W,H,leaves=[],running=true,wind=0,windT=0;
     function size(){
-      const rect=hero.getBoundingClientRect();
-      cv.width=rect.width;cv.height=rect.height;
-      w=Math.ceil(rect.width/CELL)+2;h=Math.ceil(rect.height/CELL)+2;
-      a=new Float32Array(w*h);b=new Float32Array(w*h);
-      off=document.createElement('canvas');off.width=w;off.height=h;
-      octx=off.getContext('2d');img=octx.createImageData(w,h);
-      ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+      const r=hero.getBoundingClientRect();W=r.width;H=r.height;
+      cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+      const n=Math.round(Math.min(46,Math.max(16,W*H/26000)));
+      while(leaves.length<n)leaves.push(make(true));
+      leaves.length=n;
     }
-    function drop(x,y,r,s){
-      const cx=(x/CELL|0)+1,cy=(y/CELL|0)+1;
-      for(let j=-r;j<=r;j++)for(let i=-r;i<=r;i++){
-        const px=cx+i,py=cy+j;
-        if(px<1||py<1||px>=w-1||py>=h-1)continue;
-        const d=Math.sqrt(i*i+j*j);if(d>r)continue;
-        a[py*w+px]+=s*(1-d/r);
+    function make(anyY){
+      const s=10+Math.random()*16;
+      return{x:Math.random()*W,y:anyY?Math.random()*H:-30,s,
+        vy:.35+Math.random()*.6+s*.02,ph:Math.random()*6.28,sw:.6+Math.random()*1.2,
+        rot:Math.random()*6.28,vr:(Math.random()-.5)*.03,flip:Math.random()*6.28,vf:.01+Math.random()*.03,
+        c:COLORS[Math.random()*COLORS.length|0],a:.55+Math.random()*.4,shape:Math.random()<.5?0:1};
+    }
+    function drawLeaf(l){
+      ctx.save();ctx.translate(l.x,l.y);ctx.rotate(l.rot);
+      ctx.scale(Math.cos(l.flip)*0.9+0.1,1);          // tumbling 3D flip
+      ctx.globalAlpha=l.a;ctx.fillStyle=l.c;
+      const s=l.s;ctx.beginPath();
+      if(l.shape===0){                                  // slender leaf
+        ctx.moveTo(0,-s);ctx.bezierCurveTo(s*.75,-s*.5,s*.6,s*.55,0,s);
+        ctx.bezierCurveTo(-s*.6,s*.55,-s*.75,-s*.5,0,-s);
+      }else{                                            // maple-ish leaf
+        const pts=[[0,-1],[.25,-.55],[.7,-.7],[.5,-.2],[.95,0],[.45,.2],[.55,.6],[0,.4],[-.55,.6],[-.45,.2],[-.95,0],[-.5,-.2],[-.7,-.7],[-.25,-.55]];
+        pts.forEach((q,i)=>{const x=q[0]*s,y=q[1]*s;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.closePath();
       }
+      ctx.fill();
+      ctx.globalAlpha=l.a*.5;ctx.strokeStyle='rgba(60,20,25,.55)';ctx.lineWidth=.8;  // vein + stem
+      ctx.beginPath();ctx.moveTo(0,-s*.85);ctx.lineTo(0,s*1.25);ctx.stroke();
+      ctx.restore();
     }
-    function step(){
-      for(let y=1;y<h-1;y++){
-        for(let x=1;x<w-1;x++){
-          const i=y*w+x;
-          let v=(a[i-1]+a[i+1]+a[i-w]+a[i+w])*0.5-b[i];
-          b[i]=v*0.968;                              // damping
+    let mx=-1e4,my=-1e4;
+    hero.addEventListener('pointermove',e=>{const r=hero.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top},{passive:true});
+    hero.addEventListener('pointerleave',()=>{mx=my=-1e4});
+    function frame(t){
+      if(running){
+        windT+=.004;wind=Math.sin(windT)*.6+Math.sin(windT*2.7)*.25;   // soft gusts
+        ctx.clearRect(0,0,W,H);
+        for(const l of leaves){
+          l.ph+=.02;l.y+=l.vy;l.x+=Math.sin(l.ph)*l.sw*.6+wind;
+          l.rot+=l.vr+Math.sin(l.ph)*.004;l.flip+=l.vf;
+          const dx=l.x-mx,dy=l.y-my,d=Math.hypot(dx,dy);       // leaves drift away from cursor
+          if(d<110){const f=(110-d)/110*1.8;l.x+=dx/d*f;l.y+=dy/d*f*.5;l.vr+=(Math.random()-.5)*.004}
+          if(l.y>H+30||l.x<-40||l.x>W+40)Object.assign(l,make(false),{x:Math.random()*W});
+          drawLeaf(l);
         }
       }
-      const t=a;a=b;b=t;
+      requestAnimationFrame(frame);
     }
-    function render(){
-      const d=img.data;
-      for(let y=1;y<h-1;y++){
-        for(let x=1;x<w-1;x++){
-          const i=y*w+x,dx=a[i-1]-a[i+1],dy=a[i-w]-a[i+w];
-          const s=dx*0.6+dy*0.9;
-          const al=Math.min(1,Math.pow(Math.abs(s)/110,1.4));
-          const lift=s>0?Math.min(40,s*0.4):0;           // brighter crests
-          const p=i*4;
-          d[p]=Math.min(255,R+lift);d[p+1]=Math.min(255,G+lift);d[p+2]=Math.min(255,B+lift);
-          d[p+3]=al*150;
-        }
-      }
-      octx.putImageData(img,0,0);
-      ctx.clearRect(0,0,cv.width,cv.height);
-      ctx.drawImage(off,-CELL,-CELL,w*CELL,h*CELL);
-    }
-    let last=null;
-    function move(x,y){
-      if(last){
-        const dx=x-last.x,dy=y-last.y,dist=Math.hypot(dx,dy),n=Math.max(1,dist/10|0);
-        for(let k=1;k<=n;k++)drop(last.x+dx*k/n,last.y+dy*k/n,2,Math.min(220,80+dist*1.8)/n);
-      }else drop(x,y,2,110);
-      last={x,y};
-    }
-    hero.addEventListener('pointermove',e=>{const r=hero.getBoundingClientRect();move(e.clientX-r.left,e.clientY-r.top)},{passive:true});
-    hero.addEventListener('pointerleave',()=>last=null);
-    hero.addEventListener('pointerdown',e=>{const r=hero.getBoundingClientRect();drop(e.clientX-r.left,e.clientY-r.top,6,520)});
-    // gentle ambient drops so the surface feels alive
-    setInterval(()=>{if(running)drop(Math.random()*cv.width,Math.random()*cv.height,4,140)},2600);
-    // pause when hero is off-screen
     new IntersectionObserver(es=>{running=es[0].isIntersecting}).observe(hero);
-    function loop(){if(running){step();render()}requestAnimationFrame(loop)}
     size();addEventListener('resize',()=>{clearTimeout(size.t);size.t=setTimeout(size,150)});
-    setTimeout(()=>drop(cv.width*.7,cv.height*.45,7,700),900);  // opening ripple
-    loop();
+    requestAnimationFrame(frame);
   })();
 
   // FAQ accordion
