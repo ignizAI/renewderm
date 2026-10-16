@@ -223,6 +223,28 @@ section{padding:clamp(80px,11vw,140px) 0}
 .doc-body span{font-size:.82rem;letter-spacing:.06em;color:var(--wine-500);font-weight:600}
 .doc-body p{color:var(--muted);font-size:.9rem;margin-top:10px}
 
+
+/* doctors section fits one viewport */
+#doctors{min-height:100svh;display:flex;align-items:center;padding:calc(72px + 2.5vh) 0 3vh;box-sizing:border-box}
+#doctors>.wrap{width:min(1200px,100% - 32px)}
+#doctors .sec-head{margin-bottom:clamp(16px,3vh,32px)}
+#doctors .sec-head .eyebrow{margin-bottom:8px}
+#doctors h2{font-size:clamp(2rem,4.6vh,3.2rem)}
+#doctors .doc-img{aspect-ratio:auto;height:clamp(200px,calc(100svh - 400px),560px)}
+#doctors .doc-body{padding:clamp(12px,2vh,22px) 24px clamp(14px,2.2vh,24px)}
+#doctors .doc-body h3{font-size:clamp(1.3rem,3vh,1.7rem)}
+#doctors .doc-body p{margin-top:6px}
+@media (max-width:620px){
+  #doctors .sec-head{gap:8px}
+  #doctors .sec-head p{font-size:.9rem}
+  #doctors .docs{grid-template-columns:1fr 1fr;gap:12px}
+  #doctors .doc-img{height:clamp(180px,calc(100svh - 430px),460px)}
+  #doctors .doc-body{padding:12px 12px 14px}
+  #doctors .doc-body h3{font-size:1.15rem}
+  #doctors .doc-body span{font-size:.62rem;letter-spacing:.04em}
+  #doctors .doc-body p{font-size:.78rem}
+}
+
 /* process */
 .process{background:var(--wine-950);color:var(--cream-50);position:relative;overflow:hidden}
 .process h2{color:var(--cream-50)}
